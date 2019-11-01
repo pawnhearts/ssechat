@@ -15,7 +15,7 @@ serializer = Chat()
 @routes.get(r'/messages/{board:\S+}')
 async def messages(request):
     board = request.match_info['board']
-    cursor = chat_dbs.find({'chat': board}, cursor_type=pymongo.CursorType.TAILABLE, await_data=True)
+    cursor = chat_dbs.find({'chat': board}, cursor_type=pymongo.CursorType.TAILABLE)
     async with sse_response(request) as res:
         while True:
             if not cursor.alive:
