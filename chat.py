@@ -24,6 +24,7 @@ async def messages(request):
                 async for message in cursor:
                     data = serializer.dump(message)
                     res.send(data, event='chat')
+        return res
 
 
 @routes.get(r'/last/{board:\S+}/{count:\d+}')
