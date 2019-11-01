@@ -23,7 +23,7 @@ async def messages(request):
                 cursor = chat_dbs.find({'chat': board}, cursor_type=pymongo.CursorType.TAILABLE, await_data = True)
                 async for message in cursor:
                     data = serializer.dump(message)
-                    res.send(data)
+                    res.send(data, event='chat')
 
 
 @routes.get(r'/last/{board:\S+}/{count:\d+}')
