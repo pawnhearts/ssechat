@@ -15,7 +15,7 @@ serializer = Chat()
 @routes.get(r'/messages/{board:\S+}')
 async def messages(request):
     board = request.match_info['board']
-    cursor = chat_dbs.find({'chat': board}, cursor_type=pymongo.CursorType.TAILABLE)
+    cursor = chat_dbs.find({'chat': board, 'deleted': False}, cursor_type=pymongo.CursorType.TAILABLE)
     async with sse_response(request) as res:
         while True:
             if not cursor.alive:
@@ -33,7 +33,7 @@ async def last(request):
     count = request.match_info['count']
     limit = request.query.get('limit', '')
     limit = int(limit) if limit.isnumeric() else 50
-    cursor = chat_dbs.find({'chat': board, 'count': {'$gt': count}})
+    cursor = chat_dbs.find({'chat': board, 'count': {'$gt': count}, 'deleted': False})
     cursor = cursor.sort([('count', pymongo.DESCENDING)]).limit(limit)
     rows = await cursor.to_list(limit)
     res = serializer.dump(rows, many=True)
@@ -53,7 +53,7 @@ async def data(request, ops=False):
     if ops:
         query['is_convo_op'] = True
         limit = 15
-    cursor = chat_dbs.find({'chat': board})
+    cursor = chat_dbs.find({'chat': board, 'deleted': False})
     cursor = cursor.sort([('count', pymongo.DESCENDING)]).limit(limit)
     rows = await cursor.to_list(limit)
     res = serializer.dump(rows, many=True)
